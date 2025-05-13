@@ -248,9 +248,15 @@ If you'd like:
 # 🔍 Code Breakdown (Line-by-Line Explanation)
 ################################################################################################################################
 
+
+
+
 from subprocess import check_output # subprocess.check_output - Executes shell commands and capures the output
 from json import loads # json.loads - Converts a JSON-formatted string to a Python dictionary
 from shutil import copy, copy2 # shutil.copy, shutil.copy2: Used for copying files. copy2 preserves metadata (e.g., timestamps).
+
+
+
 
 #####################################################################################################################
 # All methods are @staticmethod, meaning they can be used without creating an object of the class.
@@ -265,6 +271,7 @@ class Util:
 
   
   # 1. 📁 fileOut(file: str, data: str, mode='a')
+
   @staticmethod
   def fileOut(file:str, data:str, mode='a') -> None: # mode 'a' stands for append, 'w' is overwrite and 'r' is read-pnly
     try:
@@ -272,7 +279,9 @@ class Util:
         FILE.write(str(data))
     except Exception:
       print('fileOut error!')
-  # 📌 What it does:
+  
+##########################################################################################################################        
+# 📌 What it does:
     # - Appends or writes data to a file.
     # - Takes in the file path, data, and mode (default is append 'a').
   # 🧠 Use Case:
@@ -290,40 +299,54 @@ class Util:
 
 
   
-  # 2.  📄 jsonIn(file) -> str
+    # 2.  📄 jsonIn(file) -> str
+    @staticmethod
+    def jsonIn(file) -> str:
+        with open(file=file, mode='r') as FILE:
+            return loads(FILE.readlines()[0])
+
+
+
+
+    # 3.  🖥️ executeShellCommand(command: str) -> str
+    @staticmethod
+    def executeShellCommand(command:str) -> str:
+        result = ''
+        try:
+            result = check_output(command, shell=True, encoding='437')
+        except Exception as error:
+            result = error
+        return result
+
+
+    # 4. 🕵️ extractShellData(logPath, shellCommand: str)
+    @staticmethod
+    def extractShellData(logPath, shellCommand:str):
+        if shellCommand:
+            try:
+                result = Util.executeShellCommand(shellCOmmand)
+                Util.fileOut(logPath + 'shell.txt', result, 'w')
+                print('Shell command executed!')
+            except Exception:
+                print('shellcommand error')
+
+
+    # What it does
+        # Executes a given shell command
+        # Saves the result to shell.txt in the logging directory
+
+# What id does
+    # Runs a shell commanbd using windows command pprompt (cmd.exe)
+    # 
+
+          
   
-  @staticmethod
-  def jsonIn(file) -> str:
-    with open(file=file, mode='r') as FILE:
-      return loads(FILE.readlines()[0])
-      
-  # 📌 What it does:
-    # - Reads a JSON file and returns a Python dictionary.
-    # - Reads the first line from a .json file.
-    # - Converts the JSON string into a Python dictionary.
-    # - Assumes all JSON data is in the first line of the file.
-    # ⚠️ Assumes JSON is a single line.
-  
-   # 🧠 Use Case:
-    # - Used by the Configuration class to read config.json from the server.
 
 
-  
 
-  # 📌 What it does:
-  #  - RUns a shel command using windows command prompt (cmd.exe)
-  # - Executes a Windows shell command.
-  # - Returns output as a string.
-  # - Uses encoding 437 (OEM United States) — compatible with cmd.exe.
+# 🔍 What It Does:
+# Runs a shell command using Windows command prompt (cmd.exe).
+# Captures and returns the output.
 
-# 🧠 Use Case:
- # Used to run commands like:
-  # - bash
-  # - Copy
-  # - Edit
-  # - ipconfig
-  # - netstat
-  # - tasklist
-#################################################################################################################
-
-  # 4. extractShellData(logPath, shellCommand: str)
+# ⚠️ Encoding:
+# encoding='437' is the OEM code page used by Windows Command Prompt, commonly used to interpret special characters.
